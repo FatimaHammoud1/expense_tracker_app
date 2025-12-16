@@ -2,30 +2,17 @@ import 'package:expense_tracker/widgets/expenses_list.dart';
 import 'package:expense_tracker/models/expense.dart';
 import 'package:expense_tracker/widgets/new_expense.dart';
 import 'package:flutter/material.dart';
+import 'package:expense_tracker/db/expense_storage.dart';
 
 class ExpensesApp extends StatefulWidget {
-  const ExpensesApp({super.key});
-
+  // registeredExpensesList is not anymore a private fixed list, it is now loaded from the database and passed to ExpenseApp from main.dart
+  const ExpensesApp({super.key, required this.registeredExpensesList});
+  final List<Expense> registeredExpensesList;
   @override
   State<ExpensesApp> createState() => _ExpensesAppState();
 }
 
 class _ExpensesAppState extends State<ExpensesApp> {
-  final List<Expense> _registeredExpensesList = [
-    Expense(
-      title: 'Burger',
-      amount: 19.99,
-      date: DateTime.now(),
-      category: Category.food,
-    ),
-    Expense(
-      title: 'Cinema',
-      amount: 15.69,
-      date: DateTime.now(),
-      category: Category.leisure,
-    ),
-  ];
-
   void _openAddExpenseOverlay() {
     showModalBottomSheet(
       isScrollControlled:
@@ -36,16 +23,20 @@ class _ExpensesAppState extends State<ExpensesApp> {
     );
   }
 
-  void _addExpense(Expense expense) {
+  void _addExpense(Expense expense) async {
     setState(() {
-      _registeredExpensesList.add(expense);
+      widget.registeredExpensesList.add(expense);
     });
+    // insert the new expense to the database
+    insertExpense(expense);
   }
 
   void _deleteExpense(Expense expense) {
-    int index = _registeredExpensesList.indexOf(expense);
+    int index = widget.registeredExpensesList.indexOf(expense);
     setState(() {
-      _registeredExpensesList.remove(expense);
+      widget.registeredExpensesList.remove(expense);
+      // delete the expense from the database
+      deleteExpense(expense);
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -55,7 +46,9 @@ class _ExpensesAppState extends State<ExpensesApp> {
           label: "Undo",
           onPressed: () {
             setState(() {
-              _registeredExpensesList.insert(index, expense);
+              widget.registeredExpensesList.insert(index, expense);
+              // insret the expense again if the user revert the action
+              insertExpense(expense);
             });
           },
         ),
@@ -75,9 +68,9 @@ class _ExpensesAppState extends State<ExpensesApp> {
         ),
       ),
     );
-    if (_registeredExpensesList.isNotEmpty) {
+    if (widget.registeredExpensesList.isNotEmpty) {
       mainContent = ExpensesList(
-        expensesList: _registeredExpensesList,
+        expensesList: widget.registeredExpensesList,
         onDeleteExpense: _deleteExpense,
       );
     }
