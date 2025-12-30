@@ -13,24 +13,6 @@ class ExpensesApp extends StatefulWidget {
 }
 
 class _ExpensesAppState extends State<ExpensesApp> {
-  void _openAddExpenseOverlay() {
-    showModalBottomSheet(
-      isScrollControlled:
-          true, //We want to make sure that the TextField keyboard does not hide the inputs.
-      context: context,
-      builder: (ctx) =>
-          Padding(padding: EdgeInsets.all(16), child: NewExpense(_addExpense)),
-    );
-  }
-
-  void _addExpense(Expense expense) async {
-    setState(() {
-      widget.registeredExpensesList.add(expense);
-    });
-    // insert the new expense to the database
-    insertExpense(expense);
-  }
-
   void _deleteExpense(Expense expense) {
     int index = widget.registeredExpensesList.indexOf(expense);
     setState(() {
@@ -38,6 +20,7 @@ class _ExpensesAppState extends State<ExpensesApp> {
       // delete the expense from the database
       deleteExpense(expense);
     });
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Expense Deleted"),
@@ -74,14 +57,6 @@ class _ExpensesAppState extends State<ExpensesApp> {
         onDeleteExpense: _deleteExpense,
       );
     }
-    return Scaffold(
-      body: Center(child: mainContent),
-      appBar: AppBar(
-        title: Text("Expense Tracker"),
-        actions: [
-          IconButton(onPressed: _openAddExpenseOverlay, icon: Icon(Icons.add)),
-        ],
-      ),
-    );
+    return Scaffold(body: Center(child: mainContent));
   }
 }

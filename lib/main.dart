@@ -1,4 +1,5 @@
 import 'package:expense_tracker/expenses_app.dart';
+import 'package:expense_tracker/screens/tabs.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:expense_tracker/db/expense_storage.dart';
@@ -27,8 +28,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: ExpensesApp(registeredExpensesList: registeredExpensesList),
-    );
+    return MaterialApp(home: TabsScreen(expensesList: registeredExpensesList));
   }
 }
